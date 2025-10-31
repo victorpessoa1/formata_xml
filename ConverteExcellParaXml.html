@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Excel to XML Converter</title>
+  </head>
+  <body>
+    <h2>Converter Excel para XML</h2>
+    <input type="file" id="input-file" />
+    <button onclick="generateXML()">Gerar XML</button>
+    <pre id="output"></pre>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+      let excelData;
+
+      // Função para carregar o arquivo Excel e ler seus dados
+      document
+        .getElementById("input-file")
+        .addEventListener("change", function (e) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            excelData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          };
+          reader.readAsArrayBuffer(this.files[0]);
+        });
+
+      // Função para gerar XML com base no agrupamento por MesAnoLote
+      function generateXML() {
+        if (!excelData) {
+          alert("Por favor, carregue um arquivo Excel primeiro.");
+          return;
+        }
+
+        // Criar um mapa para agrupar os dados por MesAnoLote
+        const groupedData = {};
+
+        for (let i = 1; i < excelData.length; i++) {
+          let row = excelData[i];
+          let MesAnoLote = row[19]; // Supondo que a coluna MesAnoLote é a 19
+
+          if (!groupedData[MesAnoLote]) {
+            groupedData[MesAnoLote] = [];
+          }
+
+          groupedData[MesAnoLote].push(row);
+        }
+
+        // Para cada MesAnoLote, gerar um XML separado
+        Object.keys(groupedData).forEach((MesAnoLote) => {
+          let xml =
+            '<?xml version="1.0" encoding="UTF-8"?>\n<PrestacaoContas>\n';
+
+          let rows = groupedData[MesAnoLote];
+
+          // Gerar XML para cada linha de dados
+          rows.forEach((row, index) => {
+            let CodigoAto = row[0];
+            let DataRecolhimento = row[1];
+            let ValorTransacao = row[2];
+            let ValorEmolumento = row[3];
+            let ValorFRJ = row[4];
+            let ValorFRC = row[5];
+            let NaturezaAto = row[6];
+            let Titulo = row[7];
+            let DataVencimentoTitulo = row[8];
+            let Livro = row[9];
+            let FolhaOuFicha = row[10];
+            let Termo = row[11];
+            let CodigoSelo = row[12];
+            let TipoSelo = row[13];
+            let SerieSelo = row[14];
+            let CodigoSeguranca = row[15];
+            let NumeroDocumento = row[16];
+            let TipoDocumento = row[17];
+            let NomePessoa = row[18];
+
+            // Monta o XML usando os campos mapeados
+            xml += `  <Cabecalho>\n`;
+            xml += `    <CodigoComarca>1</CodigoComarca>\n`;
+            xml += `    <CodigoCartorio>244</CodigoCartorio>\n`;
+            xml += `    <DataTransmissao>19092024</DataTransmissao>\n`;
+            xml += `    <HoraTransmissao>141220</HoraTransmissao>\n`;
+            xml += `    <MesAnoLote>${MesAnoLote}</MesAnoLote>\n`;
+            xml += `  </Cabecalho>\n`;
+
+            xml += `  <AtoPraticado>\n`;
+            xml += `    <SequencialAto>${index + 1}</SequencialAto>\n`;
+            xml += `    <CodigoAto>${CodigoAto}</CodigoAto>\n`;
+            xml += `    <VersaoTabela>2024</VersaoTabela>\n`;
+            xml += `    <DataRecolhimento>${DataRecolhimento}</DataRecolhimento>\n`;
+            xml += `    <ValorTransacao>${ValorTransacao}</ValorTransacao>\n`;
+            xml += `    <ValorEmolumento>${ValorEmolumento}</ValorEmolumento>\n`;
+            xml += `    <ValorFRJ>${ValorFRJ}</ValorFRJ>\n`;
+            xml += `    <ValorFRC>${ValorFRC}</ValorFRC>\n`;
+            xml += `    <NaturezaAto>${NaturezaAto}</NaturezaAto>\n`;
+            xml += `    <Titulo>${Titulo}</Titulo>\n`;
+            xml += `    <DataVencimentoTitulo>${DataVencimentoTitulo}</DataVencimentoTitulo>\n`;
+            xml += `    <Livro>${Livro}</Livro>\n`;
+            xml += `    <FolhaOuFicha>${FolhaOuFicha}</FolhaOuFicha>\n`;
+            xml += `    <Termo>${Termo}</Termo>\n`;
+            xml += `    <Nota/>\n`;
+            xml += `    <Protocolo/>\n`;
+            xml += `    <Apontamento/>\n`;
+            xml += `    <Certidao/>\n`;
+            xml += `    <NumeroOrdem>0</NumeroOrdem>\n`;
+            xml += `    <NumeroProcedimentos>1</NumeroProcedimentos>\n`;
+
+            xml += `    <SelosAto>\n`;
+            xml += `      <SequencialAto>${index + 1}</SequencialAto>\n`;
+            xml += `      <CodigoSelo>${CodigoSelo}</CodigoSelo>\n`;
+            xml += `      <Tipo>${TipoSelo}</Tipo>\n`;
+            xml += `      <Serie>${SerieSelo}</Serie>\n`;
+            xml += `      <CodigoSeguranca>${CodigoSeguranca}</CodigoSeguranca>\n`;
+            xml += `    </SelosAto>\n`;
+
+            xml += `    <PessoasAto>\n`;
+            xml += `      <SequencialAto>${index + 1}</SequencialAto>\n`;
+            xml += `      <NumeroDocumento>${NumeroDocumento}</NumeroDocumento>\n`;
+            xml += `      <TipoDocumento>${TipoDocumento}</TipoDocumento>\n`;
+            xml += `      <TipoParticipacao>1001</TipoParticipacao>\n`;
+            xml += `      <NomePessoa>${NomePessoa}</NomePessoa>\n`;
+            xml += `    </PessoasAto>\n`;
+            xml += `    <AtoPraticadoFilho> </AtoPraticadoFilho>\n`;
+            xml += `  </AtoPraticado>\n`;
+
+            xml += `  <Rodape>\n`;
+            xml += `    <QuantidadeAtos>${rows.length}</QuantidadeAtos>\n`;
+            xml += `    <QuantidadeSelos>${rows.length}</QuantidadeSelos>\n`;
+            xml += `    <ValorTotalTransacao>${ValorTransacao}</ValorTotalTransacao>\n`;
+            xml += `    <ValorTotalEmolumentos>${ValorEmolumento}</ValorTotalEmolumentos>\n`;
+            xml += `    <ValorTotalFRJ>${ValorFRJ}</ValorTotalFRJ>\n`;
+            xml += `    <ValorTotalFRC>${ValorFRC}</ValorTotalFRC>\n`;
+            xml += `  </Rodape>\n`;
+          });
+
+          xml += "</PrestacaoContas>";
+
+          // Exibir o XML no console (opcional)
+          console.log(xml);
+
+          // Baixar o arquivo XML para cada MesAnoLote
+          downloadXML(xml, MesAnoLote);
+        });
+      }
+
+      // Função para baixar o arquivo XML
+      function downloadXML(content, MesAnoLote) {
+        const blob = new Blob([content], { type: "application/xml" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `PrestacaoContas_${MesAnoLote}.xml`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    </script>
+  </body>
+</html>

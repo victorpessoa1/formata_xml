@@ -1,0 +1,42 @@
+{
+   "name": "03-typeorm-example",
+   "version": "0.0.1",
+   "description": "Awesome project developed with TypeORM.",
+   "type": "commonjs",
+   "devDependencies": {
+      "@types/express": "^4.17.21",
+      "@types/multer": "^1.4.11",
+      "@types/node": "^16.11.10",
+      "nodemon": "^3.0.3",
+      "ts-node": "10.9.1",
+      "typescript": "^5.3.3"
+   },
+   "dependencies": {
+      "03-typeorm-example": "file:",
+      "axios": "^1.7.3",
+      "body-parser": "^1.19.1",
+      "cheerio": "^1.0.0-rc.12",
+      "cors": "^2.8.5",
+      "domparser": "^0.1.1",
+      "dotenv": "^16.4.1",
+      "express": "^4.17.2",
+      "htmlparser2": "^9.1.0",
+      "install": "^0.13.0",
+      "mssql": "^10.0.2",
+      "multer": "^1.4.5-lts.1",
+      "mysql": "^2.18.1",
+      "npm": "^10.4.0",
+      "path": "^0.12.7",
+      "pg": "^8.4.0",
+      "puppeteer": "^22.15.0",
+      "reflect-metadata": "^0.1.13",
+      "typeorm": "0.3.20",
+      "xml2js": "^0.6.2",
+      "xmldom": "^0.6.0",
+      "xpath": "^0.0.34"
+   },
+   "scripts": {
+      "dev": "nodemon --exec ts-node src/index.ts --watch",
+      "typeorm": "typeorm-ts-node-commonjs"
+   }
+}

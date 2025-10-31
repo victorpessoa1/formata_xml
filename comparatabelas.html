@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encontrar Linhas Repetidas em Tabelas Excel</title>
+</head>
+
+<body>
+  <h2>Encontrar Linhas Repetidas em Tabelas Excel</h2>
+  <input type="file" id="file" accept=".xlsx" />
+  <button onclick="findDuplicates()">Encontrar Repetições</button>
+  <pre id="output"></pre>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <script>
+    let data = []; // Inicializa a variável data como um array vazio
+
+    document.getElementById("file").addEventListener("change", function (e) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const dataArray = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(dataArray, { type: "array" });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        data = XLSX.utils.sheet_to_json(worksheet, { defval: "" }); // Atualiza a variável data
+        console.log("Dados carregados:", data); // Log para verificar se os dados foram carregados corretamente
+      };
+      reader.readAsArrayBuffer(this.files[0]);
+    });
+
+    function findDuplicates() {
+      if (data.length === 0) {
+        // Verifica se data está vazio
+        alert("Por favor, carregue um arquivo Excel.");
+        return;
+      }
+
+      const rowCount = {};
+      const duplicates = [];
+
+      // Contar ocorrências de cada linha
+      data.forEach((row) => {
+        const normalizedRow = JSON.stringify(normalizeRow(row));
+        rowCount[normalizedRow] = (rowCount[normalizedRow] || 0) + 1;
+      });
+
+      // Encontrar linhas que se repetem
+      for (const [row, count] of Object.entries(rowCount)) {
+        if (count > 1) {
+          duplicates.push(JSON.parse(row));
+        }
+      }
+
+      document.getElementById("output").textContent = JSON.stringify(
+        duplicates,
+        null,
+        2
+      );
+    }
+
+    function normalizeRow(row) {
+      return Object.fromEntries(
+        Object.entries(row).map(([key, value]) => [
+          key,
+          value ? String(value).trim() : "",
+        ])
+      );
+    }
+  </script>
+</body>
+
+</html>
